@@ -1061,7 +1061,9 @@ export class ToolHandler {
         // startIdx is 0-based, so the slice's first line is line startIdx + 1.
         return withLineNumbers ? numberSourceLines(slice, startIdx + 1) : slice;
       };
-      const GAP_MARKER = '\n\n// ... (gap) ...\n\n';
+      // Language-neutral separator (no `//` — not a comment in Python, Ruby,
+      // etc.). With line numbers on, the line-number jump also signals the gap.
+      const GAP_MARKER = '\n\n... (gap) ...\n\n';
 
       // Rank clusters for inclusion under the per-file cap. Entry-point
       // clusters come first: a cluster containing a query entry point
@@ -1117,7 +1119,7 @@ export class ToolHandler {
       // If a single chosen cluster is still oversize (long monolithic
       // function), tail-trim it. Better one trimmed view than nothing.
       if (fileSection.length > budget.maxCharsPerFile) {
-        fileSection = fileSection.slice(0, budget.maxCharsPerFile) + '\n// ... trimmed ...';
+        fileSection = fileSection.slice(0, budget.maxCharsPerFile) + '\n... (trimmed) ...';
         fileTrimmed = true;
       }
       if (chosenIndices.size < clusters.length || fileTrimmed) {
@@ -1147,7 +1149,7 @@ export class ToolHandler {
       if (totalChars + fileSection.length + 200 > budget.maxOutputChars) {
         const remaining = budget.maxOutputChars - totalChars - 200;
         if (remaining < 500) break;
-        const trimmed = fileSection.slice(0, remaining) + '\n// ... trimmed ...';
+        const trimmed = fileSection.slice(0, remaining) + '\n... (trimmed) ...';
 
         lines.push(fileHeader);
         lines.push('');

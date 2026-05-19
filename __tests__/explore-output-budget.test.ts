@@ -210,6 +210,15 @@ describe('codegraph_explore output respects the adaptive budget', () => {
     }
   });
 
+  it('uses language-neutral omission markers (no C-style // in the output)', async () => {
+    // The gap/trimmed separators must not assume `//` is a comment — that's
+    // wrong in Python, Ruby, etc. They render inside fenced source blocks.
+    const result = await handler.execute('codegraph_explore', { query: 'Session method helper' });
+    const text = result.content?.[0]?.text ?? '';
+    expect(text).not.toContain('// ... (gap)');
+    expect(text).not.toContain('// ... trimmed');
+  });
+
   it('does not collapse a whole-file class into just its header (envelope filter)', async () => {
     // The synthetic `Session` class spans the entire file. Without the
     // envelope filter it would form one giant cluster that tail-trims to
